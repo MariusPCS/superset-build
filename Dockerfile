@@ -11,13 +11,10 @@ RUN apt-get update && \
         gcc \
         g++ \
         ca-certificates && \
-
     curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg && \
     curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
-
     apt-get update && \
     ACCEPT_EULA=Y apt-get install -y msodbcsql18 && \
-
     pip install --no-cache-dir \
         --trusted-host pypi.org \
         --trusted-host files.pythonhosted.org \
@@ -27,7 +24,6 @@ RUN apt-get update && \
         mysqlclient \
         pandas \
         openpyxl && \
-
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 USER superset

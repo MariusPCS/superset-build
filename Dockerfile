@@ -25,6 +25,8 @@ RUN set -eux; \
         | tee /etc/apt/sources.list.d/mssql-release.list; \
     apt-get update; \
     ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18; \
+    curl -fsSL https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py; \
+    /app/.venv/bin/python /tmp/get-pip.py; \
     /app/.venv/bin/python -m pip install --no-cache-dir \
         --trusted-host pypi.org \
         --trusted-host files.pythonhosted.org \
@@ -35,6 +37,7 @@ RUN set -eux; \
         pandas \
         openpyxl; \
     mkdir -p /app/pythonpath; \
+    rm -f /tmp/get-pip.py; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
 

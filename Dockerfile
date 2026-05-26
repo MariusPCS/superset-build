@@ -36,7 +36,9 @@ RUN set -eux; \
         mysqlclient \
         pandas \
         openpyxl; \
-    mkdir -p /app/pythonpath; \
+        duckdb-engine; \
+    # Create the folder where your DuckDB databases will live inside the container
+    mkdir -p /app/pythonpath /app/duckdb_data; \
     rm -f /tmp/get-pip.py; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
@@ -69,6 +71,7 @@ class CeleryConfig:
 CELERY_CONFIG = CeleryConfig
 PYCONF
 
-RUN chown -R superset:superset /app/pythonpath
+# Ensure the superset user owns both the config and the data directory
+RUN chown -R superset:superset /app/pythonpath /app/duckdb_data
 
 USER superset

@@ -6,28 +6,27 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Show files
-        run: ls -la
+      - name: Show files in repo
+        run: |
+          pwd
+          ls -la
 
       - name: Build Docker image
         run: docker build --no-cache -t superset-custom .
 
-      - name: Save image
+      - name: Save Docker image
         run: docker save superset-custom > superset.tar
 
-      - name: Upload image
-        uses: actions/upload-artifact@v4
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v5
         with:
           name: superset-image
           path: superset.tar

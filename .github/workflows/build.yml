@@ -14,13 +14,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Show files in repo
-        run: |
-          pwd
-          ls -la
-          echo "----- Dockerfile -----"
-          cat Dockerfile
-
       - name: Build Docker image
         run: |
           export DOCKER_BUILDKIT=1
@@ -32,7 +25,7 @@ jobs:
           import psycopg2, pyodbc, pymysql, pandas, openpyxl, duckdb;
           import sqlalchemy;
           sqlalchemy.create_engine('duckdb:///:memory:');
-          print('Python dependencies and DuckDB dialect OK')
+          print('Python dependencies OK')
           "
 
       - name: Save Docker image

@@ -3,7 +3,7 @@ name: Build Superset Image
 on:
   push:
     branches:
-      - v2
+      - main
   workflow_dispatch:
 
 jobs:
@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Show files in repo
         run: |
@@ -22,17 +22,25 @@ jobs:
           cat Dockerfile
 
       - name: Build Docker image
-        run: docker build --no-cache --progress=plain -t superset-custom:latest .
+        run: |
+          export DOCKER_BUILDKIT=1
+          docker build --no-cache --progress=plain -t superset-custom:latest .
 
       - name: Test Python dependencies inside image
         run: |
-          docker run --rm superset-custom:latest /app/.venv/bin/python -c "import psycopg2, pyodbc, pymysql, pandas, openpyxl, duckdbengine; print('Python dependencies OK')"
+          docker run --rm superset-custom:latest /app/.venv/bin/python -c "
+          import psycopg2, pyodbc, pymysql, pandas, openpyxl, duckdb;
+          import sqlalchemy;
+          sqlalchemy.create_engine('duckdb:///:memory:');
+          print('Python dependencies and DuckDB dialect OK')
+          "
 
       - name: Save Docker image
-        run: docker save superset-custom:latest > superset.tar
+        run: docker save superset-custom:latest | gzip > superset.tar.gz
 
       - name: Upload Docker image artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         with:
           name: superset-image
-          path: superset.tar
+          path: superset.tar.gz
+          retention-days: 1

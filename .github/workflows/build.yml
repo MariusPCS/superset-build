@@ -3,7 +3,7 @@ name: Build Superset Image
 on:
   push:
     branches:
-      - main
+      - v2
   workflow_dispatch:
 
 jobs:

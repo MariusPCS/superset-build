@@ -19,8 +19,6 @@ RUN set -eux; \
         default-libmysqlclient-dev; \
     \
     . /etc/os-release; \
-    echo "Detected Debian version: ${VERSION_ID} / ${VERSION_CODENAME}"; \
-    \
     rm -f /etc/apt/sources.list.d/mssql-release.list; \
     curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
         | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg; \
@@ -30,7 +28,7 @@ RUN set -eux; \
     apt-get update; \
     ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18; \
     \
-    pip install --no-cache-dir \
+    /app/.venv/bin/pip install --no-cache-dir \
         --trusted-host pypi.org \
         --trusted-host files.pythonhosted.org \
         pyodbc \
@@ -40,6 +38,36 @@ RUN set -eux; \
         pandas \
         openpyxl; \
     \
+    mkdir -p /app/pythonpath; \
+    cat > /app/pythonpath/superset_config.py <<'EOF'
+import os
+
+SECRET_KEY = os.getenv("SUPERSET_SECRET_KEY", "change_me")
+
+SQLALCHEMY_DATABASE_URI = os.getenv(
+    "SUPERSET_DATABASE_URI",
+    "postgresql+psycopg2://superset:superset@db:5432/superset",
+)
+
+CACHE_CONFIG = {
+    "CACHE_TYPE": "RedisCache",
+    "CACHE_DEFAULT_TIMEOUT": 300,
+    "CACHE_KEY_PREFIX": "superset_",
+    "CACHE_REDIS_HOST": "redis",
+    "CACHE_REDIS_PORT": 6379,
+    "CACHE_REDIS_DB": 1,
+}
+
+DATA_CACHE_CONFIG = CACHE_CONFIG
+
+class CeleryConfig:
+    broker_url = "redis://redis:6379/0"
+    result_backend = "redis://redis:6379/0"
+
+CELERY_CONFIG = CeleryConfig
+EOF
+    \
+    chown -R superset:superset /app/pythonpath; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
 

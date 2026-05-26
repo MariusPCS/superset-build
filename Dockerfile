@@ -20,6 +20,7 @@ RUN set -eux; \
     . /etc/os-release; \
     rm -f /etc/apt/sources.list.d/mssql-release.list; \
     curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
+
         | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg; \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/debian/${VERSION_ID}/prod ${VERSION_CODENAME} main" \
         | tee /etc/apt/sources.list.d/mssql-release.list; \
@@ -35,7 +36,7 @@ RUN set -eux; \
         pymysql \
         mysqlclient \
         pandas \
-        openpyxl; \
+        openpyxl \
         duckdb-engine; \
     # Create the folder where your DuckDB databases will live inside the container
     mkdir -p /app/pythonpath /app/duckdb_data; \

@@ -18,9 +18,15 @@ jobs:
         run: |
           pwd
           ls -la
+          echo "----- Dockerfile -----"
+          cat Dockerfile
 
       - name: Build Docker image
-        run: docker build --no-cache -t superset-custom .
+        run: docker build --no-cache --progress=plain -t superset-custom .
+
+      - name: Test Python dependencies inside image
+        run: |
+          docker run --rm superset-custom:latest /app/.venv/bin/python -c "import psycopg2, pyodbc, pymysql, pandas, openpyxl; print('Python dependencies OK')"
 
       - name: Save Docker image
         run: docker save superset-custom > superset.tar

@@ -3,7 +3,7 @@ name: Build Superset Image
 on:
   push:
     branches:
-      - main
+      - v2
   workflow_dispatch:
 
 jobs:
@@ -22,14 +22,14 @@ jobs:
           cat Dockerfile
 
       - name: Build Docker image
-        run: docker build --no-cache --progress=plain -t superset-custom .
+        run: docker build --no-cache --progress=plain -t superset-custom:latest .
 
       - name: Test Python dependencies inside image
         run: |
-          docker run --rm superset-custom:latest /app/.venv/bin/python -c "import psycopg2, pyodbc, pymysql, pandas, openpyxl; print('Python dependencies OK')"
+          docker run --rm superset-custom:latest /app/.venv/bin/python -c "import psycopg2, pyodbc, pymysql, pandas, openpyxl, duckdbengine; print('Python dependencies OK')"
 
       - name: Save Docker image
-        run: docker save superset-custom > superset.tar
+        run: docker save superset-custom:latest > superset.tar
 
       - name: Upload Docker image artifact
         uses: actions/upload-artifact@v5

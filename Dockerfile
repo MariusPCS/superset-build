@@ -39,7 +39,10 @@ RUN set -eux; \
         openpyxl; \
     \
     mkdir -p /app/pythonpath; \
-    cat > /app/pythonpath/superset_config.py <<'EOF'
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*
+
+RUN cat > /app/pythonpath/superset_config.py <<'EOF'
 import os
 
 SECRET_KEY = os.getenv("SUPERSET_SECRET_KEY", "change_me")
@@ -66,9 +69,7 @@ class CeleryConfig:
 
 CELERY_CONFIG = CeleryConfig
 EOF
-    \
-    chown -R superset:superset /app/pythonpath; \
-    apt-get clean; \
-    rm -rf /var/lib/apt/lists/*
+
+RUN chown -R superset:superset /app/pythonpath
 
 USER superset

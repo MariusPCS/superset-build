@@ -10,8 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Build Docker image
         run: docker build -t superset-custom .
+
+      - name: Save image
+        run: docker save superset-custom > superset.tar
+
+      - name: Upload image
+        uses: actions/upload-artifact@v3
+        with:
+          name: superset-image
+          path: superset.tar

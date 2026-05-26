@@ -17,18 +17,15 @@ RUN set -eux; \
         g++ \
         pkg-config \
         default-libmysqlclient-dev; \
-    \
     . /etc/os-release; \
     rm -f /etc/apt/sources.list.d/mssql-release.list; \
     curl -fsSL https://packages.microsoft.com/keys/microsoft.asc \
         | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg; \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/debian/${VERSION_ID}/prod ${VERSION_CODENAME} main" \
-        > /etc/apt/sources.list.d/mssql-release.list; \
-    \
+        | tee /etc/apt/sources.list.d/mssql-release.list; \
     apt-get update; \
     ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18; \
-    \
-    /app/.venv/bin/pip install --no-cache-dir \
+    /app/.venv/bin/python -m pip install --no-cache-dir \
         --trusted-host pypi.org \
         --trusted-host files.pythonhosted.org \
         pyodbc \
@@ -37,12 +34,11 @@ RUN set -eux; \
         mysqlclient \
         pandas \
         openpyxl; \
-    \
     mkdir -p /app/pythonpath; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
 
-RUN cat > /app/pythonpath/superset_config.py <<'EOF'
+RUN cat <<'PYCONF' | tee /app/pythonpath/superset_config.py
 import os
 
 SECRET_KEY = os.getenv("SUPERSET_SECRET_KEY", "change_me")
@@ -68,7 +64,7 @@ class CeleryConfig:
     result_backend = "redis://redis:6379/0"
 
 CELERY_CONFIG = CeleryConfig
-EOF
+PYCONF
 
 RUN chown -R superset:superset /app/pythonpath
 
